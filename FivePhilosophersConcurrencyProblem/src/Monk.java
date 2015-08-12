@@ -26,7 +26,7 @@ public class Monk implements Runnable {
 		totalAte = new AtomicInteger(0);
 		ateCount = new AtomicInteger(0);
 		alive = true;
-		thinkCounter = new AtomicInteger(id);
+		thinkCounter = new AtomicInteger(0);
 		
 		this.id = id;
 		this.leftFork = left;
@@ -66,13 +66,7 @@ public class Monk implements Runnable {
 				}
 			}
 			
-			System.out.println(table.toString() + "\n\n\n");
-			try {
-				System.in.read();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
 		}
 		
 	}
@@ -81,7 +75,7 @@ public class Monk implements Runnable {
 		leftHand = table.pickUpFork(leftFork);
 		if (leftHand == null){
 			putDownRight();
-			think(id);
+			think(1);
 		}		
 	}
 	
@@ -97,7 +91,7 @@ public class Monk implements Runnable {
 		rightHand = table.pickUpFork(rightFork);
 		if (rightHand == null){
 			putDownLeft();
-			think(id);
+			think(1);
 		}		
 	}
 	
