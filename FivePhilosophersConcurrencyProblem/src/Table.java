@@ -21,23 +21,19 @@ public class Table {
 			}
 		}
 	}
-	
-	public synchronized Fork[] getForks(){
-		return forks;
-	}
-	
-	public Fork pickUpFork(int i){
+		
+	public synchronized Fork pickUpFork(int i){
 		Fork f = null;
 		if (forks[i] != null){
 			f = forks[i];
 			forks[i] = null;
 			return f;
 		} else {
-			return f;
+			return null;
 		}
 	}
 	
-	public void placeFork(int i, Fork fork){
+	public synchronized void placeFork(int i, Fork fork){
 		if (forks[i] == null){
 			forks[i] = fork;
 		} 

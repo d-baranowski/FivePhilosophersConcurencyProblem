@@ -1,4 +1,7 @@
 
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Monk implements Runnable {
 	public boolean alive;
 	
@@ -11,16 +14,19 @@ public class Monk implements Runnable {
 	private Fork rightHand;
 	
 	public boolean eating;
-	public int ateCount;
 	
-	public int thinkCounter;
+	AtomicInteger totalAte;
+	AtomicInteger ateCount;
+	
+	public AtomicInteger thinkCounter;
 	
 	private final Table table;
 	
 	public Monk(int id, int left, int right, Table table){
-		ateCount = 0;
+		totalAte = new AtomicInteger(0);
+		ateCount = new AtomicInteger(0);
 		alive = true;
-		thinkCounter = id;
+		thinkCounter = new AtomicInteger(id);
 		
 		this.id = id;
 		this.leftFork = left;
@@ -31,28 +37,46 @@ public class Monk implements Runnable {
 	@Override
 	public void run() {
 		while (alive){
-			if (thinkCounter > 0){
-				
+			if (thinkCounter.intValue() > 0){
+				putDownLeft();
+				putDownRight();
+				thinkCounter.decrementAndGet();
 			} else {
-				pickUpLeft();
-				pickUpRight();
-				eat();
 				
-				if (ateCount > 10){
+				if (leftHand != null){
+					if (rightHand != null){
+						eating = true;
+					}
+				} else {
+					eating = false;
+				}
+				
+				if (eating){
+					ateCount.incrementAndGet();
+					totalAte.incrementAndGet();
+				} else {
+					pickUpLeft();
+					pickUpRight();
+				}
+									
+				if (ateCount.intValue() > 10){
 					putDownLeft();
 					putDownRight();
-					ateCount = 0;
+					ateCount.set(0);
 				}
 			}
-		}	
-	}
-	
-	private void eat(){
-		if (leftHand != null && rightHand != null){
-			ateCount++;
+			
+			System.out.println(table.toString() + "\n\n\n");
+			try {
+				System.in.read();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		
 	}
-	
+			
 	private synchronized void pickUpLeft(){
 		leftHand = table.pickUpFork(leftFork);
 		if (leftHand == null){
@@ -64,6 +88,8 @@ public class Monk implements Runnable {
 	private void putDownLeft(){
 		if (leftHand != null){
 			table.placeFork(leftFork, leftHand);
+			leftHand = null;
+			eating = false;
 		}
 	}
 	
@@ -78,18 +104,20 @@ public class Monk implements Runnable {
 	private synchronized void putDownRight(){
 		if (rightHand != null){
 			table.placeFork(rightFork, rightHand);
+			rightHand = null;
+			eating = false;
 		}
 	}
 	
 	private void think(int t){
 		putDownLeft();
 		putDownRight();
-		thinkCounter = t;
+		thinkCounter.set(t);;
 	}
 	
 	public String toString(){
 		String s;
-		s = "Monk Id: " + id + " Left Fork: " + leftFork + " Right Fork: " + rightFork + " Think for: " + thinkCounter + " Ate: " + ateCount;
+		s = "Monk Id: " + id + " Left Fork: " + leftFork + " Right Fork: " + rightFork + " Think for: " + thinkCounter + " Ate: " + totalAte.intValue() + " Eating: " + eating;
 		
 		if (leftHand != null){
 			s = s + " L ";
